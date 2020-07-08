@@ -157,8 +157,7 @@ module TotoriStaffHeartJoin1()
         translate([0,54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
         translate([0,-54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
         translate([0,42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,-42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);        
-        cylinder(h=16,d=PipeDiameter,$fn=256,center=true); // pipe goes here
+        translate([0,-42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);         
     }
     // Create two small posts; you do NOT want to build support structures this high.
     // Use these posts and build supports on them instead.
@@ -252,6 +251,51 @@ module TotoriStaffHeartJoin3()
         translate([0,0,50]) sphere(d=5,$fn=64);
     }    
 }
+
+// A module that gives the general shape of the outer heart ring.
+module HeartRingPrimitive()
+{
+    difference()
+    {
+        union()        
+        translate([0,0,5]) scale([1,0.95,0.85]) rotate([90,0,90]) linear_extrude(height=5,center=true) heart_mod(200,center=true);
+        translate([0,0,5]) scale([1,0.9,0.8]) rotate([90,0,90]) linear_extrude(height=6,center=true) heart_mod(170,center=true);
+        translate([0,0,50]) cube([6,90,100],center=true);
+//  #      translate([0,-46,0]) scale([1,1,1.3]) rotate([0,90,0]) cylinder(h=6,d=100,center=true,$fn=128);
+/*  
+        translate([0,54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([0,-54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([0,42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([0,-42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);         */
+    }
+        difference()
+        {
+            translate([0,-43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=128);
+            translate([0,-51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=128);
+            
+        }
+        difference()
+        {
+            translate([0,43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=128);
+            translate([0,51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=128);    
+        }
+}
+
+module TotoriStaffHeart()
+{
+   difference()
+   { 
+        translate([30,0,0]) scale([2,1,1]) HeartRingPrimitive();
+        translate([26,54,84]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,-54,84]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,42,85]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,-42,85]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,-58,-20]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,-51,-26]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,58,-20]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([26,51,-26]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+   }         
+}
     
 
 // Anything down here is temporary for visualization purposes.
@@ -263,9 +307,10 @@ TotoriStaffFerulePiece1();
 translate([0,0,50]) TotoriStaffFerulePiece2();
 translate([0,0,80]) TotoriStaffFerulePiece3();*/
 //cylinder(r=PipeRadius,h=400,$fn=64);
-/*
+
 TotoriStaffCenterJewel();
 translate([0,0,45]) TotoriStaffHeartJoin1();
 translate([0,0,135]) TotoriStaffHeartJoin2();
 translate([0,0,225]) TotoriStaffHeartJoin3();
-*/
+TotoriStaffHeart();
+translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
