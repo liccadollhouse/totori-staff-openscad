@@ -1,0 +1,3 @@
+include <TotoriStaffMaster.scad>;
+
+TotoriStaffCenterJewel();
