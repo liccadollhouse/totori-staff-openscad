@@ -1,3 +1,3 @@
 include <TotoriStaffMaster.scad>;
 
-TotoriStaffHeart();
+TotoriStaffMiddleJoin();

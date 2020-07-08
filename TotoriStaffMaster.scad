@@ -296,7 +296,45 @@ module TotoriStaffHeart()
         translate([26,51,-26]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
    }         
 }
+
+module TotoriStaffHeartWing()
+{
+   difference()
+   { 
+       union()
+       { 
+           translate([0,-90,-42]) scale([1,0.60,0.75]) mirror([0,1,0]) rotate([7,180,0]) 
+           difference()
+           { 
+               translate([0,0,0]) scale([2,1,1]) HeartRingPrimitive();
+               translate([0,100,0]) cube(200,center=true);
+               translate([0,0,-100]) cube(140,center=true);       
+           }
+           translate([0,-15,-150])
+           intersection()
+           {
+               translate([0,10,75]) rotate([0,90,0]) cylinder(r=50,h=10,$fn=128,center=true);
+               translate([0,-72,30]) rotate([0,90,0]) cylinder(r=50,h=10,$fn=128,center=true);
+               translate([0,-25,50]) rotate([0,90,0]) cylinder(r=15,h=10,$fn=128,center=true);
+           }
+       }
+       translate([0,-58,-20]) rotate([0,90,0]) cylinder(h=50,d=Wire4GaugeDiameter,center=true,$fn=128);
+       translate([0,-51,-26]) rotate([0,90,0]) cylinder(h=50,d=Wire4GaugeDiameter,center=true,$fn=128);
+   }
+}
     
+module TotoriStaffMiddleJoin()
+{
+    difference()
+    { 
+        rotate_extrude($fn=256)
+        {
+            polygon(points=[ [0,0], [20,0], [16,20], [0,20] ]);
+            polygon(points=[ [0,0], [20,0], [16,-40], [0,-40] ]);
+        }
+        cylinder(h=200,d=PipeDiameter,$fn=256,center=true);   
+    }
+}
 
 // Anything down here is temporary for visualization purposes.
 // I use separate OpenSCAD files that include this file and call
@@ -307,10 +345,14 @@ TotoriStaffFerulePiece1();
 translate([0,0,50]) TotoriStaffFerulePiece2();
 translate([0,0,80]) TotoriStaffFerulePiece3();*/
 //cylinder(r=PipeRadius,h=400,$fn=64);
-
+/*
 TotoriStaffCenterJewel();
 translate([0,0,45]) TotoriStaffHeartJoin1();
 translate([0,0,135]) TotoriStaffHeartJoin2();
 translate([0,0,225]) TotoriStaffHeartJoin3();
 TotoriStaffHeart();
+mirror([1,0,0])TotoriStaffHeart();
 translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
+translate([0,0,-95]) TotoriStaffMiddleJoin();
+TotoriStaffHeartWing();
+*/
