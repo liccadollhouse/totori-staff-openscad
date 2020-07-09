@@ -1,4 +1,5 @@
 include <HeartPrimitives.scad>; // This supplies a function, heart_mod(), for heart shapes
+include <TotoriStaffArmPath.scad>; // This is required for the arm sections of the heart ring on the staff
 
 PipeDiameter = 28;  // Units are in mm
 PipeRadius = PipeDiameter/2;
@@ -261,12 +262,6 @@ module HeartRingPrimitive()
         translate([0,0,5]) scale([1,0.95,0.85]) rotate([90,0,90]) linear_extrude(height=5,center=true) heart_mod(200,center=true);
         translate([0,0,5]) scale([1,0.9,0.8]) rotate([90,0,90]) linear_extrude(height=6,center=true) heart_mod(170,center=true);
         translate([0,0,50]) cube([6,90,100],center=true);
-//  #      translate([0,-46,0]) scale([1,1,1.3]) rotate([0,90,0]) cylinder(h=6,d=100,center=true,$fn=128);
-/*  
-        translate([0,54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,-54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,-42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);         */
     }
         difference()
         {
@@ -336,6 +331,63 @@ module TotoriStaffMiddleJoin()
     }
 }
 
+module TotoriStaffSideArms()
+{
+    difference()
+    {
+        translate([30,60,-60])
+        hull()
+        {
+            scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
+            scale([1,5,3]) rotate([90,-35,90]) translate([0,0,8]) poly_path3022(1);                    
+        }
+        translate([34,-10,-100]) rotate([-45,0,0]) cylinder(d=6,h=30,center=true,$fn=64);        
+    }
+    difference()
+    {
+        union()
+        {
+            hull()
+            {
+                translate([30,120,-15]) rotate([0,90,0]) cylinder(d=22,h=7,$fn=128);
+                translate([30,132,-31]) rotate([0,90,0]) cylinder(d=22,h=7,$fn=128);    
+            }
+            translate([30,138,-15]) rotate([0,90,0]) cylinder(d=22,h=7,$fn=128);
+        }
+        translate([33,120,-15]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);
+        translate([33,132,-31]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);    
+        translate([33,138,-15]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);
+    }
+}
+
+// Since I'm using 4 gauge wire to do the coils, the wire ends must be
+// enveloped to prevent cuts.  This structure will keep up the coil structure
+// and protect the wire ends.
+module TotoriStaffLowerCoilStop()
+{
+    difference()
+    {
+        union()
+        {
+            cylinder(h=20,r=PipeRadius+2,$fn=128);
+            hull()
+            {
+                translate([18,0,10])cylinder(h=10,d=8,$fn=128);
+                translate([14,0,1])sphere(d=2,$fn=128);
+            }
+            hull()
+            {
+                translate([-18,0,10])cylinder(h=10,d=8,$fn=128);
+                translate([-14,0,1])sphere(d=2,$fn=128);
+            }
+        }
+        translate([-18,0,10]) cylinder(d=6,h=20,$fn=128);
+        translate([18,0,10]) cylinder(d=6,h=20,$fn=128);
+        cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+    }
+}
+
+
 // Anything down here is temporary for visualization purposes.
 // I use separate OpenSCAD files that include this file and call
 // only the appropriate module.
@@ -355,4 +407,8 @@ mirror([1,0,0])TotoriStaffHeart();
 translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
 translate([0,0,-95]) TotoriStaffMiddleJoin();
 TotoriStaffHeartWing();
-*/
+mirror([0,1,0])TotoriStaffHeartWing();*/
+//TotoriStaffSideArms();
+/*mirror([0,1,0])TotoriStaffSideArms();*/
+
+//translate([0,0,-125]) TotoriStaffLowerCoilStop();
