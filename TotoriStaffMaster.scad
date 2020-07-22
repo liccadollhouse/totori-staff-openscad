@@ -392,12 +392,20 @@ module TotoriStaffLowerCoilStop()
 // I use separate OpenSCAD files that include this file and call
 // only the appropriate module.
 
-/*color("blue") translate([0,0,-8]) TotoriStaffFeruleJoin();
-TotoriStaffFerulePiece1();
-translate([0,0,50]) TotoriStaffFerulePiece2();
-translate([0,0,80]) TotoriStaffFerulePiece3();*/
-//cylinder(r=PipeRadius,h=400,$fn=64);
-/*
+translate([0,0,-400])
+{
+    mirror([0,0,1])
+    {
+        color("blue") translate([0,0,-8]) TotoriStaffFeruleJoin();
+        TotoriStaffFerulePiece1();
+        translate([0,0,50]) TotoriStaffFerulePiece2();
+        translate([0,0,80]) TotoriStaffFerulePiece3();
+        translate([0,0,80]) TotoriStaffFerulePiece4();
+    }
+cylinder(r=PipeRadius,h=400,$fn=64);
+}
+
+
 TotoriStaffCenterJewel();
 translate([0,0,45]) TotoriStaffHeartJoin1();
 translate([0,0,135]) TotoriStaffHeartJoin2();
@@ -407,8 +415,8 @@ mirror([1,0,0])TotoriStaffHeart();
 translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
 translate([0,0,-95]) TotoriStaffMiddleJoin();
 TotoriStaffHeartWing();
-mirror([0,1,0])TotoriStaffHeartWing();*/
-//TotoriStaffSideArms();
-/*mirror([0,1,0])TotoriStaffSideArms();*/
+mirror([0,1,0])TotoriStaffHeartWing();
+TotoriStaffSideArms();
+mirror([0,1,0])TotoriStaffSideArms();
 
-//translate([0,0,-125]) TotoriStaffLowerCoilStop();
+translate([0,0,-185]) TotoriStaffLowerCoilStop();
