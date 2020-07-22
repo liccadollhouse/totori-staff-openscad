@@ -391,7 +391,7 @@ module TotoriStaffLowerCoilStop()
 // Anything down here is temporary for visualization purposes.
 // I use separate OpenSCAD files that include this file and call
 // only the appropriate module.
-
+/*
 translate([0,0,-400])
 {
     mirror([0,0,1])
@@ -419,4 +419,4 @@ mirror([0,1,0])TotoriStaffHeartWing();
 TotoriStaffSideArms();
 mirror([0,1,0])TotoriStaffSideArms();
 
-translate([0,0,-185]) TotoriStaffLowerCoilStop();
+translate([0,0,-185]) TotoriStaffLowerCoilStop();*/
