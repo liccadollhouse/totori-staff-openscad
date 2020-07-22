@@ -1,4 +1,4 @@
-# totori-staff-openscad
+﻿# totori-staff-openscad
 OpenSCAD code for Totori's staff.
 
 Version history:
