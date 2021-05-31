@@ -1,6 +1,19 @@
 include <HeartPrimitives.scad>; // This supplies a function, heart_mod(), for heart shapes
 include <TotoriStaffArmPath.scad>; // This is required for the arm sections of the heart ring on the staff
 
+// DUAL EXTRUSION FLAG 
+// READ THIS COMMENT BEFORE SETTING TO 1
+// 
+// The DualExtrusionVersion flag enables a version of Totori's staff that
+// exploits dual extrusion printers and water-soluble filaments such as PVA
+// and BVOH.  In general, the original single extrusion version had multiple
+// compromises to use as few support structures as possible.  The dual
+// extrusion version aims to remove as many of the compromises as possible.
+DualExtrusionVersion = true;
+//
+// END DUAL EXTRUSION FLAG
+ 
+
 PipeDiameter = 28;  // Units are in mm
 PipeRadius = PipeDiameter/2;
 
@@ -76,11 +89,21 @@ module TotoriStaffFerulePiece4()
                     translate([0,0,0])cylinder(r=8,h=20,$fn=256);
                 }
         }
-        translate([0,0,80]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
-        translate([25,0,50]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
-        translate([-25,0,50]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
-        translate([0,0,20]) cube([200,200,40],center=true);
-        cylinder(h=15,d=PipeDiameter,$fn=256,center=true);   
+        if (DualExtrusionVersion)
+        {
+            translate([0,0,80]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([25,0,48]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([-25,0,48]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([0,0,15.9]) cube([200,200,40],center=true);
+        }
+        else
+        {
+            translate([0,0,80]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([25,0,50]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([-25,0,50]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
+            translate([0,0,20]) cube([200,200,40],center=true);
+            cylinder(h=15,d=PipeDiameter,$fn=256,center=true);   
+        }
     }
 }
 
@@ -391,21 +414,21 @@ module TotoriStaffLowerCoilStop()
 // Anything down here is temporary for visualization purposes.
 // I use separate OpenSCAD files that include this file and call
 // only the appropriate module.
-/*
-translate([0,0,-400])
-{
+
+//translate([0,0,-400])
+//{
     mirror([0,0,1])
     {
-        color("blue") translate([0,0,-8]) TotoriStaffFeruleJoin();
-        TotoriStaffFerulePiece1();
-        translate([0,0,50]) TotoriStaffFerulePiece2();
-        translate([0,0,80]) TotoriStaffFerulePiece3();
-        translate([0,0,80]) TotoriStaffFerulePiece4();
+        //color("blue") translate([0,0,-8]) TotoriStaffFeruleJoin();
+        //TotoriStaffFerulePiece1();
+        //translate([0,0,50]) TotoriStaffFerulePiece2();
+        //translate([0,0,80]) TotoriStaffFerulePiece3();
+        //translate([0,0,80]) TotoriStaffFerulePiece4();
     }
-cylinder(r=PipeRadius,h=400,$fn=64);
-}
+//cylinder(r=PipeRadius,h=400,$fn=64);
+//}
 
-
+/*
 TotoriStaffCenterJewel();
 translate([0,0,45]) TotoriStaffHeartJoin1();
 translate([0,0,135]) TotoriStaffHeartJoin2();
