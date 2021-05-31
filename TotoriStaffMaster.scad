@@ -58,21 +58,21 @@ module TotoriStaffFerulePiece4()
             {
                 hull()
                 {
-                    translate([0,0,40]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
-                    translate([0,0,0])cylinder(r=8,h=20,$fn=256);
+                    translate([0,2.5,40]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
+                    translate([0,0,0])cylinder(r=8,h=10,$fn=256);
                 }
             }
             // The angle is done in this way in order to make this section easier to print.
             translate([0,0,50]) rotate([0,95,0]) 
                 hull()
                 {
-                    translate([0,0,25]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
+                    translate([0,2.5,25]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
                     translate([0,0,0])cylinder(r=8,h=20,$fn=256);
                 }
             translate([0,0,50]) rotate([0,-95,0])
                 hull()
                 {
-                    translate([0,0,25]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
+                    translate([0,2.5,25]) rotate([90,0,0]) cylinder(d=24,h=5,$fn=256);
                     translate([0,0,0])cylinder(r=8,h=20,$fn=256);
                 }
         }
