@@ -57,7 +57,10 @@ module TotoriStaffFerulePiece3()
                 polygon(points=[ [0,-3], [20,-3], [8,40], [0,40] ]);
             }            
         }
-        cylinder(h=15,d=PipeDiameter,$fn=256,center=true);   
+        cylinder(h=15,d=PipeDiameter,$fn=256,center=true);
+        // Add a cone on top of the "pipe cylinder" that will allow for the top
+        // to not require a support structure.
+        translate([0,0,22.5]) cylinder(h=30,d1=PipeDiameter,d2=1,$fn=256,center=true);
     }     
 }
 
@@ -94,7 +97,7 @@ module TotoriStaffFerulePiece4()
             translate([0,0,80]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
             translate([25,0,48]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
             translate([-25,0,48]) rotate([90,0,0]) cylinder(d=15,h=50,$fn=256,center=true);
-            translate([0,0,15.9]) cube([200,200,40],center=true);
+          //  translate([0,0,15.9]) cube([200,200,40],center=true);
         }
         else
         {
