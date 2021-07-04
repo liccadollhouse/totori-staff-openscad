@@ -1,8 +1,14 @@
-include <HeartPrimitives.scad>; // This supplies a function, heart_mod(), for heart shapes
+include <helperfunctions-openscad/HeartPrimitives.scad>; // This supplies a function, heart_mod(), for heart shapes
 include <TotoriStaffArmPath.scad>; // This is required for the arm sections of the heart ring on the staff
+include <Spiral_Extrude.scad>; // This is from the following:
+// https://www.thingiverse.com/thing:1958354
+// spiral_extrude() by AKADAP is licensed under the GNU - GPL license.
+// We are using the extrude_spiral() module to generate the coils for the dual
+// extrusion version of Totori's staff.
+include <helperfunctions-openscad/screwprimitives.scad>; // This supplies some functions for screw diameters
 
 // DUAL EXTRUSION FLAG 
-// READ THIS COMMENT BEFORE SETTING TO 1
+// READ THIS COMMENT BEFORE SETTING TO TRUE
 // 
 // The DualExtrusionVersion flag enables a version of Totori's staff that
 // exploits dual extrusion printers and water-soluble filaments such as PVA
@@ -14,7 +20,7 @@ DualExtrusionVersion = true;
 // END DUAL EXTRUSION FLAG
  
 
-PipeDiameter = 28;  // Units are in mm
+PipeDiameter = 27.8;  // Units are in mm
 PipeRadius = PipeDiameter/2;
 
 Wire4GaugeDiameter = 5.25; // Units are in mm
@@ -354,7 +360,7 @@ module TotoriStaffMiddleJoin()
             polygon(points=[ [0,0], [20,0], [16,-40], [0,-40] ]);
         }
         cylinder(h=200,d=PipeDiameter,$fn=256,center=true);   
-    }
+    }    
 }
 
 module TotoriStaffSideArms()
@@ -367,7 +373,11 @@ module TotoriStaffSideArms()
             scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
             scale([1,5,3]) rotate([90,-35,90]) translate([0,0,8]) poly_path3022(1);                    
         }
-        translate([34,-10,-100]) rotate([-45,0,0]) cylinder(d=6,h=30,center=true,$fn=64);        
+        if (DualExtrusionVersion == false) // wire to insert for single extruder
+        {
+            translate([34,-10,-100]) rotate([-45,0,0]) cylinder(d=6,h=30,center=true,$fn=64);        
+        }
+        
     }
     difference()
     {
@@ -383,6 +393,42 @@ module TotoriStaffSideArms()
         translate([33,120,-15]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);
         translate([33,132,-31]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);    
         translate([33,138,-15]) rotate([0,90,0]) cylinder(d=12,h=8,center=true,$fn=128);
+    }    
+}
+
+module TotoriStaffSideArms_dual()
+{
+    translate([-5,15,0]) TotoriStaffSideArms();
+    
+    AngleMax=320;
+    
+    hull()
+    {
+        translate([-5,15,0]) intersection()
+        {
+            translate([30,60,-60])
+            hull()
+            {
+                scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
+                scale([1,5,3]) rotate([90,-35,90]) translate([0,0,8]) poly_path3022(1);                    
+            }
+            translate([0,0,-100]) rotate([55,0,0]) cube([100,5,100],center=true);
+        }
+        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) sphere(d=7,$fn=128);
+    }
+        
+    translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=AngleMax, ZPitch=50, RPitch=8,StepsPerRev=360, Starts=1)
+    {
+        circle(d=7,$fn=128);
+    }
+    difference()
+    {
+        translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
+        {
+            circle(d=7,$fn=128);
+        }
+        translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
+        translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
     }
 }
 
@@ -418,8 +464,8 @@ module TotoriStaffLowerCoilStop()
 // I use separate OpenSCAD files that include this file and call
 // only the appropriate module.
 
-//translate([0,0,-400])
-//{
+translate([0,0,-400])
+{
     mirror([0,0,1])
     {
         //color("blue") translate([0,0,-8]) TotoriStaffFeruleJoin();
@@ -429,20 +475,20 @@ module TotoriStaffLowerCoilStop()
         //translate([0,0,80]) TotoriStaffFerulePiece4();
     }
 //cylinder(r=PipeRadius,h=400,$fn=64);
-//}
+}
 
+
+//TotoriStaffCenterJewel();
+//translate([0,0,45]) TotoriStaffHeartJoin1();
+/*translate([0,0,135]) TotoriStaffHeartJoin2();
+translate([0,0,225]) TotoriStaffHeartJoin3();*/
+//TotoriStaffHeart();
+//mirror([1,0,0])TotoriStaffHeart();
+//translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
+//translate([0,0,-95]) TotoriStaffMiddleJoin();
+//TotoriStaffHeartWing();
+//mirror([0,1,0])TotoriStaffHeartWing();
+//TotoriStaffSideArms_dual();
+//rotate([0,0,180]) mirror([0,0,0])TotoriStaffSideArms_dual();
 /*
-TotoriStaffCenterJewel();
-translate([0,0,45]) TotoriStaffHeartJoin1();
-translate([0,0,135]) TotoriStaffHeartJoin2();
-translate([0,0,225]) TotoriStaffHeartJoin3();
-TotoriStaffHeart();
-mirror([1,0,0])TotoriStaffHeart();
-translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
-translate([0,0,-95]) TotoriStaffMiddleJoin();
-TotoriStaffHeartWing();
-mirror([0,1,0])TotoriStaffHeartWing();
-TotoriStaffSideArms();
-mirror([0,1,0])TotoriStaffSideArms();
-
 translate([0,0,-185]) TotoriStaffLowerCoilStop();*/
