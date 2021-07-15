@@ -12,22 +12,21 @@ module TotoriStaffArmsFinal()
 
 module TotoriStaffArmsFinalSupport()
 {
-    difference()
-    {
-        translate([0,0,-33])
-        {          
-            translate([-70,50,0]) rotate([0,0,-28]) cube([30,180,4],center=true);
-            translate([-105,-12,6]) rotate([0,0,-28]) cube([20,30,8],center=true);        
-            translate([-20,145,0]) rotate([0,0,-28]) cube([50,50,4],center=true);
-            translate([-125,-5,0]) rotate([0,0,28]) cube([20,70,4],center=true);
-            translate([-125,-2,27]) rotate([0,0,22]) cube([10,30,56],center=true);
-            translate([-150,0,0]) rotate([0,0,-28]) cube([20,60,4],center=true);
-            translate([-150,0,7]) rotate([0,0,-28]) cube([10,40,16],center=true);
+   difference()
+   { 
+        union()
+        {
+           linear_extrude(2) projection(cut = false) translate([0,0,34]) TotoriStaffArmsFinal();
+           intersection()
+           {
+                linear_extrude(15) projection(cut = false) translate([0,0,34]) TotoriStaffArmsFinal();
+                translate([-100,-30,-10]) rotate([-25,0,-20]) cube(50,center=true);
+           } 
         }
-        TotoriStaffArmsFinal();
-    }
-    
+        translate([0,0,34.2]) TotoriStaffArmsFinal();
+        
+   } 
 }
 
-//TotoriStaffArmsFinal();
-TotoriStaffArmsFinalSupport();
+//translate([0,0,34.2]) TotoriStaffArmsFinal();
+//TotoriStaffArmsFinalSupport();

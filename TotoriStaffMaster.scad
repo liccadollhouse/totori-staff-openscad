@@ -400,8 +400,8 @@ module TotoriStaffSideArms_dual()
 {
     translate([-5,15,0]) TotoriStaffSideArms();
     
-    AngleMax=320;
-    
+
+        
     hull()
     {
         translate([-5,15,0]) intersection()
@@ -414,12 +414,22 @@ module TotoriStaffSideArms_dual()
             }
             translate([0,0,-100]) rotate([55,0,0]) cube([100,5,100],center=true);
         }
-        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) sphere(d=7,$fn=128);
+        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320])cylinder(h=0.1,d=7,$fn=128,center=true);
     }
-        
+    translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320]) cube([3,3,8],center=true);
+}
+
+module TotoriStaffSideArmsCoil_dual()
+{
+    AngleMax=320;    
+    
+    difference()
+    {
     translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=AngleMax, ZPitch=50, RPitch=8,StepsPerRev=360, Starts=1)
     {
         circle(d=7,$fn=128);
+    }
+        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320]) cube([3.2,3.2,9],center=true);
     }
     difference()
     {
@@ -432,30 +442,89 @@ module TotoriStaffSideArms_dual()
     }
 }
 
-// Since I'm using 4 gauge wire to do the coils, the wire ends must be
-// enveloped to prevent cuts.  This structure will keep up the coil structure
-// and protect the wire ends.
+
+
 module TotoriStaffLowerCoilStop()
 {
-    difference()
+    // Single extrusion version:
+    // Since I'm using 4 gauge wire to do the coils, the wire ends must be
+    // enveloped to prevent cuts.  This structure will keep up the coil structure
+    // and protect the wire ends.
+    if (DualExtrusionVersion == false)
     {
-        union()
+        translate([0,0,-185]) difference()
         {
-            cylinder(h=20,r=PipeRadius+2,$fn=128);
-            hull()
+            union()
             {
-                translate([18,0,10])cylinder(h=10,d=8,$fn=128);
-                translate([14,0,1])sphere(d=2,$fn=128);
+                cylinder(h=20,r=PipeRadius+2,$fn=128);
+                hull()
+                {
+                    translate([18,0,10])cylinder(h=10,d=8,$fn=128);
+                    translate([14,0,1])sphere(d=2,$fn=128);
+                }
+                hull()
+                {
+                    translate([-18,0,10])cylinder(h=10,d=8,$fn=128);
+                    translate([-14,0,1])sphere(d=2,$fn=128);
+                }
             }
-            hull()
-            {
-                translate([-18,0,10])cylinder(h=10,d=8,$fn=128);
-                translate([-14,0,1])sphere(d=2,$fn=128);
-            }
+            translate([-18,0,10]) cylinder(d=6,h=20,$fn=128);
+            translate([18,0,10]) cylinder(d=6,h=20,$fn=128);
+            cylinder(r=PipeRadius,h=100,$fn=256,center=true);
         }
-        translate([-18,0,10]) cylinder(d=6,h=20,$fn=128);
-        translate([18,0,10]) cylinder(d=6,h=20,$fn=128);
-        cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+    }
+    // Dual extrusion version:
+    // This stop is specifically designed for the printed coils.  You will need to
+    // print this and the other half, then bolt the halves together with screws through
+    // the pipe.
+    else
+    {
+        difference()
+        {
+            union()
+            {
+                intersection()
+                {
+                    translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
+                    scale([0.8,1.2,1]) translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
+                }
+                translate([0,0,-181]) cylinder(h=20,r=PipeRadius+1.5,$fn=128);
+                translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+3),d=8.5,$fn=128,center=true);
+                hull()
+                {
+                    translate([0,-20,-163]) rotate([0,65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
+                    translate([-0.707*(PipeRadius+1.5),-(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
+                }
+                hull()
+                {
+                    translate([0,20,-163]) rotate([0,-65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
+                    translate([0.707*(PipeRadius+1.5),(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
+                }
+                
+            }
+            translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
+            {
+                circle(d=7.2,$fn=128);
+            }                        
+            translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
+            translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
+            translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
+            translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
+            
+            rotate([0,0,180]) union()
+            {
+                translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
+                {
+                    circle(d=7.2,$fn=128);
+                }
+                translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
+                translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
+                translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
+                translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
+            }
+            translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+5),d=ScrewDiameter8,$fn=128,center=true);
+            translate([0,0,-171]) cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+        }        
     }
 }
 
@@ -489,6 +558,7 @@ translate([0,0,225]) TotoriStaffHeartJoin3();*/
 //TotoriStaffHeartWing();
 //mirror([0,1,0])TotoriStaffHeartWing();
 //TotoriStaffSideArms_dual();
+//TotoriStaffSideArmsCoil_dual();
 //rotate([0,0,180]) mirror([0,0,0])TotoriStaffSideArms_dual();
-/*
-translate([0,0,-185]) TotoriStaffLowerCoilStop();*/
+
+//TotoriStaffLowerCoilStop();
