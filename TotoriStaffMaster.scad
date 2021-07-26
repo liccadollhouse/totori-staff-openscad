@@ -6,6 +6,7 @@ include <Spiral_Extrude.scad>; // This is from the following:
 // We are using the extrude_spiral() module to generate the coils for the dual
 // extrusion version of Totori's staff.
 include <helperfunctions-openscad/screwprimitives.scad>; // This supplies some functions for screw diameters
+include <../threads-scad/threads.scad>;
 
 // DUAL EXTRUSION FLAG 
 // READ THIS COMMENT BEFORE SETTING TO TRUE
@@ -160,44 +161,84 @@ module TotoriStaffCenterJewel()
     }
 }
 
-module TotoriStaffHeartJoin1()
-{
-    cylinder(r=PipeRadius+4,h=5,$fn=128);
-    hull()
-    {
-        translate([0,0,5]) cylinder(r=PipeRadius+2,h=1,$fn=128);
-        translate([0,0,10]) cylinder(r=PipeRadius-2,h=2,$fn=128);
-    }
-    
-    rotate_extrude($fn=128)    
-    {
-        difference()
-        {
-            translate([0,10,0]) square([40,75]);
-            translate([110,0,0]) scale([1,2,1]) circle(r=100,$fn=256);
-        }
-    }
-    translate([0,0,85]) cylinder(r=PipeRadius+5.48,h=5,$fn=128);
 
+module TotoriStaffPinPrimitive()
+{    
     difference()
     {
-        translate([0,0,-40]) scale([1,0.9,0.85]) rotate([90,0,90]) linear_extrude(height=5,center=true) heart_mod(200,center=true);
-        translate([0,-46,-30]) scale([1,1,1.3]) rotate([0,90,0]) cylinder(h=6,d=100,center=true,$fn=128);
-        translate([0,46,-30]) scale([1,1,1.3]) rotate([0,90,0]) cylinder(h=6,d=100,center=true,$fn=128);
-        translate([0,160,-40]) cube([6,200,200],center=true);
-        translate([0,-160,-40]) cube([6,200,200],center=true);
-        translate([0,0,-120]) cube([6,200,200],center=true);
-        translate([0,54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,-54,39]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([0,-42,40]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);         
+        union()
+        {
+            square([3.5,30]);
+            square([6,6]);
+            translate([0,24,0]) square([6,6]);
+        }
+        translate([10.5,24,0]) circle(r=7,$fn=128);
+        translate([10.5,6,0]) circle(r=7,$fn=128);
     }
-    // Create two small posts; you do NOT want to build support structures this high.
-    // Use these posts and build supports on them instead.
-    translate([-2.5,32,0]) cube([5,29,32.3]);
-    translate([-2.5,32,0]) cube([10,29,3]);
-    translate([-2.5,-32-29,0]) cube([5,29,32.4]);
-    translate([-2.5,-32-29,0]) cube([10,29,3]);
+}
+
+module TotoriStaffPin()
+{
+    rotate_extrude($fn=128) TotoriStaffPinPrimitive();
+    mirror([0,0,1]) rotate_extrude($fn=128) TotoriStaffPinPrimitive();
+}
+
+
+module TotoriStaffHeartJoin1()
+{
+    difference()
+    {
+        union()
+        {
+            cylinder(r=PipeRadius+4,h=5,$fn=128);
+            hull()
+            {
+                translate([0,0,5]) cylinder(r=PipeRadius+2,h=1,$fn=128);
+                translate([0,0,10]) cylinder(r=PipeRadius-2,h=2,$fn=128);
+            }
+            
+            rotate_extrude($fn=128)    
+            {
+                difference()
+                {
+                    translate([0,10,0]) square([40,75]);
+                    translate([110,0,0]) scale([1,2,1]) circle(r=100,$fn=256);
+                }
+            }
+            translate([0,0,85]) cylinder(r=PipeRadius+5.48,h=5,$fn=128);
+            translate([0,0,85]) RodStart(20,5,15);
+            difference()
+            {
+                translate([0,0,-40]) scale([1,0.9,0.85]) rotate([90,0,90]) linear_extrude(height=10,center=true) heart_mod(200,center=true,fn=512);
+                translate([0,-46,-32]) scale([1,1,1.25]) rotate([0,90,0]) cylinder(h=11,d=100,center=true,$fn=256);
+                translate([0,46,-32]) scale([1,1,1.25]) rotate([0,90,0]) cylinder(h=11,d=100,center=true,$fn=256);
+                translate([0,162,-40]) cube([11,200,200],center=true);
+                translate([0,-162,-40]) cube([11,200,200],center=true);
+                translate([0,0,-120]) cube([11,200,200],center=true);
+                translate([0,52,37]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+                linear_extrude(height=37) projection() translate([0,52,37]) scale([1.05,1.05,1]) rotate([0,90,0]) TotoriStaffPin();
+                translate([0,-52,37]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+                linear_extrude(height=37) projection() translate([0,-52,37]) scale([1.05,1.05,1]) rotate([0,90,0]) TotoriStaffPin();
+                translate([0,-38,37]) rotate([0,90,0]) cylinder(h=15,d=ScrewDiameter6,center=true,$fn=128);
+                translate([0,38,37]) rotate([0,90,0]) cylinder(h=15,d=ScrewDiameter6,center=true,$fn=128);
+            }
+        }
+        cylinder(r=PipeRadius,h=15.1,$fn=128,center=true);
+        cylinder(r=6,h=100,$fn=128,center=true);    
+        translate([0,0,50]) sphere(r=6,$fn=128,center=true);
+    }
+    // Only generate for non-dual extrusion printers.  The specific support structures for dual 
+    // extrusion printers will be in another file.
+    if (DualExtrusionVersion == false)
+    {
+        // Create two small posts; you do NOT want to build support structures this high.
+        // Use these posts and build supports on them instead.
+        translate([-5,34,0]) cube([10,29,27]);
+        translate([-5,34,0]) cube([15,29,3]);
+        translate([-5,-34-29,0]) cube([10,29,27]);
+        translate([-5,-34-29,0]) cube([15,29,3]);
+    }
+    
     
 }
 
@@ -245,33 +286,42 @@ module TotoriStaffHeartJoin2()
 {
     intersection()
     {
-        union()
+        difference()
         {
-            cylinder(r=PipeRadius+5.48,h=2,$fn=128);
-            
-            translate([0,0,87])
-            mirror([0,0,1])
-            rotate_extrude($fn=128)    
+            union()
             {
-                difference()
+                cylinder(r=PipeRadius+5.48,h=2,$fn=128);
+                
+                translate([0,0,87])
+                mirror([0,0,1])
+                rotate_extrude($fn=128)    
                 {
-                    translate([0,10,0]) square([40,75]);
-                    translate([110,0,0]) scale([1,2,1]) circle(r=100,$fn=256);
+                    difference()
+                    {
+                        translate([0,10,0]) square([40,75]);
+                        translate([110,0,0]) scale([1,2,1]) circle(r=100,$fn=256);
+                    }
                 }
+                hull()
+                {
+                    translate([0,0,88]) cylinder(r=PipeRadius+3,h=2,$fn=128);
+                    translate([0,0,60]) cylinder(r=PipeRadius-3.1,h=2,$fn=128);
+                }
+                
+                FleurDeLisArmFull();
+                mirror([0,1,0]) FleurDeLisArmFull();
             }
-            hull()
-            {
-                translate([0,0,88]) cylinder(r=PipeRadius+3,h=2,$fn=128);
-                translate([0,0,60]) cylinder(r=PipeRadius-3.1,h=2,$fn=128);
-            }
-            
-            FleurDeLisArmFull();
-            mirror([0,1,0]) FleurDeLisArmFull();
+            cylinder(d=19,h=20,$fn=256);
         }
-        // I'm intersecting this part with this cube.  This will allow me to print this section
-        // without resorting to support structures.
-        translate([0,0,45]) cube([190,190,90],center=true);
+        // Do this only for non-dual extrusion printers.
+        if (DualExtrusionVersion == false)
+        {
+            // I'm intersecting this part with this cube.  This will allow me to print this section
+            // without resorting to support structures.
+            translate([0,0,45]) cube([190,190,90],center=true);
+        }
     }
+    translate([0,0,20]) rotate([180,0,0]) RodEnd(20,20,thread_len=15);    
     
 }
 
@@ -549,9 +599,10 @@ translate([0,0,-400])
 
 //TotoriStaffCenterJewel();
 //translate([0,0,45]) TotoriStaffHeartJoin1();
-/*translate([0,0,135]) TotoriStaffHeartJoin2();
-translate([0,0,225]) TotoriStaffHeartJoin3();*/
+//translate([0,0,135]) TotoriStaffHeartJoin2();
+//translate([0,0,225]) TotoriStaffHeartJoin3();
 //TotoriStaffHeart();
+//#rotate([0,90,0])TotoriStaffPin();
 //mirror([1,0,0])TotoriStaffHeart();
 //translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
 //translate([0,0,-95]) TotoriStaffMiddleJoin();
