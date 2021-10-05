@@ -1,6 +1,6 @@
 include <TotoriStaffMaster.scad>;
 
-
+/*
 module TotoriStaffArmsCoilsFinal()
 {
     translate([0,0,24]) rotate([0,90,0]) translate([0,0,140]) TotoriStaffSideArmsCoil_dual();
@@ -27,3 +27,5 @@ module TotoriStaffArmsCoilsFinalSupport()
 
 TotoriStaffArmsCoilsFinal();
 //TotoriStaffArmsCoilsFinalSupport();
+*/
+TotoriStaffSideArms_dual();

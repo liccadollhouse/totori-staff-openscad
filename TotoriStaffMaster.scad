@@ -26,6 +26,34 @@ PipeRadius = PipeDiameter/2;
 
 Wire4GaugeDiameter = 5.25; // Units are in mm
 
+module extrude_spiral_modification(StartRadius=10,Angle=360,ZPitch=0,RPitch=0,StepsPerRev=50,Starts=1){
+    NumberOfSteps=ceil(Angle/360*StepsPerRev)-1;
+        //Number of degrees of last step to use.
+    Remainder=((Angle/360*StepsPerRev)-floor(Angle/360*StepsPerRev));
+    CircleDiameterStart=7;
+    CircleDiameterEnd=12;
+    CircleDiameterDelta=CircleDiameterEnd-CircleDiameterStart;
+    DiameterSteps = [ for (i = [0 : CircleDiameterDelta/NumberOfSteps : CircleDiameterDelta]) i ];
+    for(i=[0:NumberOfSteps]){
+        for(j=[0:Starts-1]){
+            rotate([0,0,360*i/StepsPerRev+360*j/Starts]){
+                    //Current Radius
+                LocRadius=StartRadius+i*RPitch/StepsPerRev;
+                    //Radius at next junction
+                LocRadiusJoint=LocRadius/cos(360/(2*StepsPerRev))-RPitch*360/StepsPerRev/2;
+                    //Length of line connecting endpoints of the current radius and the radius of the next joint
+                TaperLen=sqrt(pow(LocRadius,2)+pow(LocRadiusJoint,2)-2*LocRadius*LocRadiusJoint*cos(360/(2*StepsPerRev)));
+                    //Angle of above line relative to the current radius
+                TaperAngle=90-asin(max(min(sin(360/(2*StepsPerRev))*LocRadiusJoint/TaperLen,1),-1));
+ 
+                translate([LocRadius,0,i*ZPitch/StepsPerRev]){
+                    segment(Radius=LocRadius, ZPitch=ZPitch, StepsPerRev=StepsPerRev, First=i==0, Last=(i==NumberOfSteps)?Remainder:0,RPitch=RPitch) circle(d=7+DiameterSteps[i],$fn=128); 
+                }
+            }
+        }
+    }
+}
+
 module TotoriStaffFerulePiece1()
 {
     difference()
@@ -136,10 +164,10 @@ module Octagon2DPrimitive()
     difference()
     {
         square([90,50],center=true);
-        translate([58,58,0]) rotate([0,0,-45]) square([80,80],center=true);
-        translate([58,-58,0]) rotate([0,0,-45]) square([80,80],center=true);
-        translate([-58,-58,0]) rotate([0,0,-45]) square([80,80],center=true);
-        translate([-58,58,0]) rotate([0,0,-45]) square([80,80],center=true);        
+        translate([58.5,58.5,0]) rotate([0,0,-45]) square([80,80],center=true);
+        translate([58.5,-58.5,0]) rotate([0,0,-45]) square([80,80],center=true);
+        translate([-58.5,-58.5,0]) rotate([0,0,-45]) square([80,80],center=true);
+        translate([-58.5,58.5,0]) rotate([0,0,-45]) square([80,80],center=true);        
     }
 }
 
@@ -157,7 +185,7 @@ module TotoriStaffCenterJewel()
             translate([20,0,0]) scale([1,0.5,0.7]) rotate([0,90,0]) linear_extrude(height=0.1,center=true) Octagon2DPrimitive();
             translate([-20,0,0]) scale([1,0.5,0.7]) rotate([0,90,0]) linear_extrude(height=0.1,center=true) Octagon2DPrimitive();        
         }    
-        cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+        cylinder(r=PipeRadius+0.4,h=100,$fn=256,center=true);
     }
 }
 
@@ -181,6 +209,44 @@ module TotoriStaffPin()
 {
     rotate_extrude($fn=128) TotoriStaffPinPrimitive();
     mirror([0,0,1]) rotate_extrude($fn=128) TotoriStaffPinPrimitive();
+}
+
+module TotoriStaffPinReinforced()
+{
+    difference()
+    {
+        union()
+        {
+            TotoriStaffPin();
+            translate([3,0,0]) cube([6,6.5,60],center=true);
+            translate([1,-10,7.1]) cube([10,20,4],center=true);
+            translate([1,-10,-7.1]) cube([10,20,4],center=true);
+        }
+        translate([0,-14,0]) cylinder(h=40,d=ScrewDiameter6,center=true,$fn=128);        
+        cylinder(h=90,d=ScrewDiameter8,center=true,$fn=256);        
+    }
+}
+
+module TotoriStaffPinLower()
+{
+    scale([0.7,0.7,1]) TotoriStaffPin();
+}
+
+module TotoriStaffPinLowerReinforced()
+{
+    difference()
+    {
+        union()
+        {
+            TotoriStaffPinLower();
+            translate([6,0,0]) cube([12,4.7,60],center=true);
+            translate([7.4,8.5,7.1]) rotate([0,0,-41.5]) cube([10,20,4],center=true);
+            translate([7.4,8.5,-7.1]) rotate([0,0,-41.5]) cube([10,20,4],center=true);
+        }
+        translate([6,9,0]) cylinder(h=40,d=ScrewDiameter6,center=true,$fn=128);
+        translate([33,-15,0]) rotate([0,0,-41.5]) cube(61,center=true);    
+        #cylinder(h=90,d=ScrewDiameter6,center=true,$fn=256);        
+    }
 }
 
 
@@ -341,20 +407,20 @@ module HeartRingPrimitive()
     difference()
     {
         union()        
-        translate([0,0,5]) scale([1,0.95,0.85]) rotate([90,0,90]) linear_extrude(height=5,center=true) heart_mod(200,center=true);
-        translate([0,0,5]) scale([1,0.9,0.8]) rotate([90,0,90]) linear_extrude(height=6,center=true) heart_mod(170,center=true);
+        translate([0,0,5]) scale([1,0.95,0.85]) rotate([90,0,90]) linear_extrude(height=5,center=true) heart_mod(200,center=true,fn=256);
+        translate([0,0,5]) scale([1,0.9,0.8]) rotate([90,0,90]) linear_extrude(height=6,center=true) heart_mod(170,center=true,fn=256);
         translate([0,0,50]) cube([6,90,100],center=true);
     }
         difference()
         {
-            translate([0,-43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=128);
-            translate([0,-51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=128);
+            translate([0,-43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=256);
+            translate([0,-51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=256);
             
         }
         difference()
         {
-            translate([0,43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=128);
-            translate([0,51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=128);    
+            translate([0,43,65]) scale([1,1,1]) rotate([0,90,0]) cylinder(h=5,d=50,center=true,$fn=256);
+            translate([0,51,58]) scale([1,1.2,0.75]) rotate([0,90,0]) cylinder(h=6,d=30,center=true,$fn=256);    
         }
 }
 
@@ -362,15 +428,31 @@ module TotoriStaffHeart()
 {
    difference()
    { 
-        translate([30,0,0]) scale([2,1,1]) HeartRingPrimitive();
-        translate([26,54,84]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,-54,84]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,42,85]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,-42,85]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,-58,-20]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,-51,-26]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,58,-20]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
-        translate([26,51,-26]) rotate([0,90,0]) cylinder(h=8,d=Wire4GaugeDiameter,center=true,$fn=128);
+        translate([32.5,0,0]) scale([3,1,1]) HeartRingPrimitive();
+        translate([0,52,82]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+        intersection()
+        {   
+            linear_extrude(height=82) projection() translate([0,52,82]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+            translate([30,52,82]) cube(40,center=true);
+        }
+        translate([0,52,82]) rotate([0,90,0]) cylinder(h=45,d=ScrewDiameter8,$fn=128);
+        #translate([33,52,82]) rotate([0,90,0]) cylinder(h=8,d=12,$fn=128);
+        translate([0,-52,82]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+        intersection()
+        {            
+            linear_extrude(height=82) projection() translate([0,-52,82]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPin();
+            translate([30,-52,82]) cube(40,center=true);
+        }
+        translate([0,-52,82]) rotate([0,90,0]) cylinder(h=45,d=ScrewDiameter8,$fn=128);
+        translate([33,-52,82]) rotate([0,90,0]) cylinder(h=8,d=12,$fn=128);
+        translate([0,49,-28]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();        
+        mirror([0,0,1]) linear_extrude(height=28) projection() translate([0,49,-28]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();
+        translate([0,49,-28]) rotate([0,90,0]) cylinder(h=45,d=ScrewDiameter6,$fn=128);
+        translate([33,49,-28]) rotate([0,90,0]) cylinder(h=8,d=10,$fn=128);
+        translate([0,-49,-28]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();
+        mirror([0,0,1]) linear_extrude(height=28) projection() translate([0,-49,-28]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();
+        translate([0,-49,-28]) rotate([0,90,0]) cylinder(h=45,d=ScrewDiameter6,$fn=128);
+        translate([33,-49,-28]) rotate([0,90,0]) cylinder(h=8,d=10,$fn=128);
    }         
 }
 
@@ -380,7 +462,7 @@ module TotoriStaffHeartWing()
    { 
        union()
        { 
-           translate([0,-90,-42]) scale([1,0.60,0.75]) mirror([0,1,0]) rotate([7,180,0]) 
+           translate([0,-89,-42]) scale([1,0.60,0.75]) mirror([0,1,0]) rotate([7,180,0]) 
            difference()
            { 
                translate([0,0,0]) scale([2,1,1]) HeartRingPrimitive();
@@ -395,8 +477,9 @@ module TotoriStaffHeartWing()
                translate([0,-25,50]) rotate([0,90,0]) cylinder(r=15,h=10,$fn=128,center=true);
            }
        }
-       translate([0,-58,-20]) rotate([0,90,0]) cylinder(h=50,d=Wire4GaugeDiameter,center=true,$fn=128);
-       translate([0,-51,-26]) rotate([0,90,0]) cylinder(h=50,d=Wire4GaugeDiameter,center=true,$fn=128);
+       translate([0,-49,-26]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();
+       mirror([0,0,1]) linear_extrude(height=26) projection() translate([0,-49,-26]) rotate([0,90,0]) scale([1.05,1.05,1]) TotoriStaffPinLower();       
+       #translate([0,-58,-20]) rotate([0,90,0]) cylinder(h=45,d=ScrewDiameter6,center=true,$fn=128);      
    }
 }
     
@@ -409,7 +492,7 @@ module TotoriStaffMiddleJoin()
             polygon(points=[ [0,0], [20,0], [16,20], [0,20] ]);
             polygon(points=[ [0,0], [20,0], [16,-40], [0,-40] ]);
         }
-        cylinder(h=200,d=PipeDiameter,$fn=256,center=true);   
+        cylinder(h=200,d=PipeDiameter+0.75,$fn=256,center=true);   // Adjustment for how my resin printer prints this object
     }    
 }
 
@@ -417,11 +500,18 @@ module TotoriStaffSideArms()
 {
     difference()
     {
-        translate([30,60,-60])
+        translate([30,55,-63])
         hull()
         {
-            scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
-            scale([1,5,3]) rotate([90,-35,90]) translate([0,0,8]) poly_path3022(1);                    
+            if (DualExtrusionVersion == true) 
+            {
+                scale([1,5,3]) rotate([90,-35,80]) translate([0,0,-3]) poly_path2996(2);
+            }
+            else
+            {
+                scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
+            }
+            scale([1,5,3]) rotate([90,-35,90]) translate([0,0,6]) poly_path3022(1);                    
         }
         if (DualExtrusionVersion == false) // wire to insert for single extruder
         {
@@ -448,39 +538,36 @@ module TotoriStaffSideArms()
 
 module TotoriStaffSideArms_dual()
 {
-    translate([-5,15,0]) TotoriStaffSideArms();
-    
-
-        
+    difference()
+    {
+        translate([-5,15,0]) TotoriStaffSideArms();
+        translate([0,3.5,-110]) rotate([18,0,360]) cube([100,30,100],center=true);
+    }
+           
     hull()
     {
         translate([-5,15,0]) intersection()
         {
-            translate([30,60,-60])
+            translate([30,55,-63])
             hull()
             {
-                scale([1,5,3]) rotate([90,-35,90]) poly_path2996(2);
-                scale([1,5,3]) rotate([90,-35,90]) translate([0,0,8]) poly_path3022(1);                    
+                scale([1,5,3]) rotate([90,-35,80]) translate([0,0,-3]) poly_path2996(2);
+                scale([1,5,3]) rotate([90,-35,90]) translate([0,0,6]) poly_path3022(1);                    
             }
-            translate([0,0,-100]) rotate([55,0,0]) cube([100,5,100],center=true);
+            translate([0,20,-110]) rotate([18,0,360]) cube([100,30,100],center=true);
         }
-        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320])cylinder(h=0.1,d=7,$fn=128,center=true);
+        //translate([cos(350)*((5.5*350/360)+20),sin(350)*((5.5*350/360)+20),-150+(50*350/360)]) rotate([108,0,350])cylinder(h=0.1,d=12,$fn=128,center=true);
+        translate([25.5,0,-100]) rotate([108,0,360])cylinder(h=0.1,d=12,$fn=128,center=true);
     }
-    translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320]) cube([3,3,8],center=true);
-}
-
-module TotoriStaffSideArmsCoil_dual()
-{
-    AngleMax=320;    
     
-    difference()
+    AngleMax=360;    
+    
+    translate([0,0,-150]) extrude_spiral_modification(StartRadius=20, Angle=AngleMax, ZPitch=50, RPitch=5.5,StepsPerRev=360, Starts=1)
     {
-    translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=AngleMax, ZPitch=50, RPitch=8,StepsPerRev=360, Starts=1)
-    {
-        circle(d=7,$fn=128);
+        //circle(d=7,$fn=128); // line no longer needed
     }
-        translate([cos(320)*((8*320/360)+20),sin(320)*((8*320/360)+20),-150+(50*320/360)]) rotate([106,0,320]) cube([3.2,3.2,9],center=true);
-    }
+        
+    
     difference()
     {
         translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
@@ -490,7 +577,10 @@ module TotoriStaffSideArmsCoil_dual()
         translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
         translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
     }
-}
+    
+}    
+
+
 
 
 
@@ -578,6 +668,66 @@ module TotoriStaffLowerCoilStop()
     }
 }
 
+module TotoriStaffUpperCoilStop()
+{    
+    if (DualExtrusionVersion == false)
+    {
+        // This doesn't exist.
+    }
+    // Dual extrusion version:
+    // This stop is specifically designed for the printed coils.  You will need to
+    // print this and the other half, then bolt the halves together with screws through
+    // the pipe.
+    else
+    {
+        difference()
+        {
+            union()
+            {
+                intersection()
+                {
+                    translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
+                    scale([0.8,1.2,1]) translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
+                }
+                translate([0,0,-181]) cylinder(h=20,r=PipeRadius+1.5,$fn=128);
+                translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+3),d=8.5,$fn=128,center=true);
+                hull()
+                {
+                    translate([0,-20,-163]) rotate([0,65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
+                    translate([-0.707*(PipeRadius+1.5),-(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
+                }
+                hull()
+                {
+                    translate([0,20,-163]) rotate([0,-65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
+                    translate([0.707*(PipeRadius+1.5),(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
+                }
+                
+            }
+            translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
+            {
+                circle(d=7.2,$fn=128);
+            }                        
+            translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
+            translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
+            translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
+            translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
+            
+            rotate([0,0,180]) union()
+            {
+                translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
+                {
+                    circle(d=7.2,$fn=128);
+                }
+                translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
+                translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
+                translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
+                translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
+            }
+            translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+5),d=ScrewDiameter8,$fn=128,center=true);
+            translate([0,0,-171]) cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+        }        
+    }
+}
 
 // Anything down here is temporary for visualization purposes.
 // I use separate OpenSCAD files that include this file and call
@@ -602,14 +752,23 @@ translate([0,0,-400])
 //translate([0,0,135]) TotoriStaffHeartJoin2();
 //translate([0,0,225]) TotoriStaffHeartJoin3();
 //TotoriStaffHeart();
-//#rotate([0,90,0])TotoriStaffPin();
+/*difference()
+{
+    rotate([0,90,0])TotoriStaffPinLower();
+    rotate([0,90,0]) cylinder(h=100, d=ScrewDiameter6, center=true, $fn=100);
+}*/
+//TotoriStaffPinLowerReinforced();
+//translate([0,49,-26]) rotate([0,-90,0]) TotoriStaffPinLowerReinforced();
+//translate([0,52,82]) rotate([0,90,0]) TotoriStaffPinReinforced();
 //mirror([1,0,0])TotoriStaffHeart();
 //translate([0,0,-45]) mirror([0,0,1]) TotoriStaffFerulePiece2();
 //translate([0,0,-95]) TotoriStaffMiddleJoin();
 //TotoriStaffHeartWing();
 //mirror([0,1,0])TotoriStaffHeartWing();
-//TotoriStaffSideArms_dual();
-//TotoriStaffSideArmsCoil_dual();
+TotoriStaffSideArms_dual();
+
 //rotate([0,0,180]) mirror([0,0,0])TotoriStaffSideArms_dual();
 
-//TotoriStaffLowerCoilStop();
+
+TotoriStaffLowerCoilStop();
+TotoriStaffUpperCoilStop();
