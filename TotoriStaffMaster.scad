@@ -6,7 +6,7 @@ include <Spiral_Extrude.scad>; // This is from the following:
 // We are using the extrude_spiral() module to generate the coils for the dual
 // extrusion version of Totori's staff.
 include <helperfunctions-openscad/screwprimitives.scad>; // This supplies some functions for screw diameters
-include <../threads-scad/threads.scad>;
+include <../threads-scad/threads.scad>; // This is used for the threaded connection on the top of the staff
 
 // DUAL EXTRUSION FLAG 
 // READ THIS COMMENT BEFORE SETTING TO TRUE
@@ -26,6 +26,10 @@ PipeRadius = PipeDiameter/2;
 
 Wire4GaugeDiameter = 5.25; // Units are in mm
 
+// This function is specifically modified from the original version from the 
+// Spiral Extrude library.  I needed to scale up the part to be scaled up in 
+// size as the part is extruded through the spiral.  The original function 
+// does not do this scaling.
 module extrude_spiral_modification(StartRadius=10,Angle=360,ZPitch=0,RPitch=0,StepsPerRev=50,Starts=1){
     NumberOfSteps=ceil(Angle/360*StepsPerRev)-1;
         //Number of degrees of last step to use.
@@ -686,45 +690,34 @@ module TotoriStaffUpperCoilStop()
             {
                 intersection()
                 {
-                    translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
-                    scale([0.8,1.2,1]) translate([0,0,-171]) cylinder(h=12,r=PipeRadius+12,$fn=256);
-                }
-                translate([0,0,-181]) cylinder(h=20,r=PipeRadius+1.5,$fn=128);
-                translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+3),d=8.5,$fn=128,center=true);
-                hull()
-                {
-                    translate([0,-20,-163]) rotate([0,65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
-                    translate([-0.707*(PipeRadius+1.5),-(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
-                }
-                hull()
-                {
-                    translate([0,20,-163]) rotate([0,-65,0]) cylinder(h=0.1,d=7.2,center=true,$fn=128);
-                    translate([0.707*(PipeRadius+1.5),(PipeRadius+1.5)*0.707,-180.95]) cylinder(h=0.1,d=0.1,center=true,$fn=128);
-                }
-                
+                    translate([0,0,-159]) cylinder(h=10,r=PipeRadius+12,$fn=256);
+                    scale([0.8,1.2,1]) translate([0,0,-159]) cylinder(h=10,r=PipeRadius+12,$fn=256);
+                }                                
             }
+            
             translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
             {
-                circle(d=7.2,$fn=128);
+                circle(d=7.3,$fn=128);
             }                        
-            translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
-            translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
-            translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
-            translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
-            
+            translate([11,-17,-147]) cylinder(h=10,d=7,center=true,$fn=64);
+            translate([5,-19.5,-150]) cylinder(h=10,d=7,center=true,$fn=64);
+            translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=64);       
+            translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=64);        
             rotate([0,0,180]) union()
             {
                 translate([0,0,-150]) extrude_spiral(StartRadius=20, Angle=-90, ZPitch=50, RPitch=0,StepsPerRev=360, Starts=1)
                 {
-                    circle(d=7.2,$fn=128);
+                    circle(d=7.3,$fn=128);
                 }
-                translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);
-                translate([11,-17,-168.5]) linear_extrude(10,center=true) NutWell6_2d();
-                translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=32);   
-                translate([5,-19.5,-171.5]) linear_extrude(10,center=true) NutWell6_2d();
-            }
-            translate([0,0,-176]) rotate([90,90,0]) cylinder(h=(PipeRadius*2+5),d=ScrewDiameter8,$fn=128,center=true);
+                translate([11,-17,-147]) cylinder(h=10,d=7,center=true,$fn=64);
+                translate([5,-19.5,-150]) cylinder(h=10,d=7,center=true,$fn=64);
+                translate([5,-19.5,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=64);       
+                translate([11,-17,-150]) cylinder(h=100,d=ScrewDiameter6,center=true,$fn=64);
+            }            
             translate([0,0,-171]) cylinder(r=PipeRadius,h=100,$fn=256,center=true);
+            // Chop it in half to allow for the coil to clear.
+            translate([0,0,-159]) cube([80,20,80],center=true);
+            rotate([0,0,45])translate([0,0,-159]) cube([80,20,80],center=true);
         }        
     }
 }
@@ -765,10 +758,10 @@ translate([0,0,-400])
 //translate([0,0,-95]) TotoriStaffMiddleJoin();
 //TotoriStaffHeartWing();
 //mirror([0,1,0])TotoriStaffHeartWing();
-TotoriStaffSideArms_dual();
+//TotoriStaffSideArms_dual();
 
 //rotate([0,0,180]) mirror([0,0,0])TotoriStaffSideArms_dual();
 
 
-TotoriStaffLowerCoilStop();
-TotoriStaffUpperCoilStop();
+//TotoriStaffLowerCoilStop();
+//TotoriStaffUpperCoilStop();
